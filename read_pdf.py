@@ -2,23 +2,39 @@
 # pylint: disable=E0401
 # pylint: disable=E1101
 import PyPDF2
+from extract_hotel_group import extract_from_hotel_group
+from extract_jupiter_hotel import extract_from_jupyter_hotel
+from extract_onyria import extract_from_onyria
 
-def read_pdf(file_path):
+
+def read_pdf(file_path) -> str:
+    """This uses PyPDF to read the content from a pdf file"""
     # creating a pdf file object
-    pdfFileObj = open(file_path,'rb')
+    pdf_object = open(file_path, 'rb')
 
     # creating a pdf reader object
-    pdfReader = PyPDF2.PdfReader(pdfFileObj)
+    pdf_reader = PyPDF2.PdfReader(pdf_object, strict=True)
 
-    # creating a page object
-    pageObj = pdfReader.pages[0]
+    pdf_reader = pdf_reader.pages[0]
 
-    return pageObj.extract_text()
+    text = pdf_reader.extract_text()
 
-def read_based_on_string(str_file):
+    pdf_object.close()
+
+    return text
+
+
+def read_based_on_string(str_raw) -> dict:
+    """ Each string has a key string to trigger one of
+    the following functions"""
     # jupyter lisboa hotel
-    if 'JUPITER LISBOA HOTEL':
-        pass
+    if 'JUPITER LISBOA HOTEL' in str_raw:
+        print('here')
+        return extract_from_jupyter_hotel(str_raw)
     # NH hotels
-    if '-HOTELS.COM':
-        pass
+    if '-HOTELS.COM' in str_raw:
+        return extract_from_hotel_group(str_raw)
+
+    # Onyria
+    if 'ESTE DOCUMENTO NÃO SERVE DE FATURA' in str_raw:
+        return extract_from_onyria(str_raw)

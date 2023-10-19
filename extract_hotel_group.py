@@ -38,6 +38,9 @@ def extract_from_hotel_group(text):
     # in these pdfs, the first three are not important
     filt_list_of_indexes = index_iterable_items[3:]
 
+    # append the results here
+    data = []
+
     # filter items in text
     for index, filt_item in enumerate(
             [list_text[i] for i in filt_list_of_indexes]):
@@ -80,7 +83,7 @@ def extract_from_hotel_group(text):
 
                 product = ' '.join(duplicate_row_list[2:-1])
 
-            return {
+            data.append({
                 'código': code,
                 'produto': product,
                 'referência': reference,
@@ -88,7 +91,9 @@ def extract_from_hotel_group(text):
                 'preço': price,
                 'quantidade': quantity,
                 'total': total
-                }
+                })
 
         except Exception as error:
             print(error)
+
+    return data
