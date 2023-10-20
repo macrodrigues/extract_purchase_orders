@@ -29,12 +29,21 @@ def read_based_on_string(str_raw) -> dict:
     the following functions"""
     # jupyter lisboa hotel
     if 'JUPITER LISBOA HOTEL' in str_raw:
-        print('here')
+        print('Jupyter Hotel')
         return extract_from_jupyter_hotel(str_raw)
     # NH hotels
     if '-HOTELS.COM' in str_raw:
+        print('NH Hotels')
         return extract_from_hotel_group(str_raw)
 
     # Onyria
     if 'ESTE DOCUMENTO NÃO SERVE DE FATURA' in str_raw:
+        print('Onyria')
         return extract_from_onyria(str_raw)
+
+    # THE EMERALD HOUSE LISBON HOTEL
+    if 'THE EMERALD HOUSE LISBON HOTEL' in str_raw:
+        print('THE EMERALD HOUSE LISBON HOTEL')
+
+    else:
+        print('Did not find!')
