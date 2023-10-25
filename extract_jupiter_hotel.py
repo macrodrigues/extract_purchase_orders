@@ -5,6 +5,8 @@ Jupyter Hotel
 # pylint: disable=E1101
 # pylint: disable=E1101
 # pylint: disable=W0718
+# pylint: disable=W0612
+# flake8: noqa
 import re
 
 
@@ -17,14 +19,22 @@ def find_six_consecutive_numbers(text) -> list:
     return matches
 
 
+def find_date(text):
+    """ Detect date using a regex function"""
+    pattern = r'\d{4}/\d{2}/\d{2}'
+    matches = re.findall(pattern, text)
+    return matches
+
+
 def detect_weight(str_item) -> str:
     """This function uses a regex expression to detect weight
     according to different units"""
     # This regex pattern detects the weight
     patterns = [
-        r'[\d\s,]+?(?= ?KG)',  # KG
-        r'[\d\s,]+?(?= ?GF5)',  # GF5
-        r'[\d\s,]+?(?= ?UN)']  # UN
+        r'[\d\s,]+?(?= ?KG)',
+        r'[\d\s,]+?(?= ?L)',
+        r'[\d\s,]+?(?= ?GF5)',
+        r'[\d\s,]+?(?= ?UN)']
     matches = [re.findall(pattern, str_item) for pattern in patterns]
     res = [item for match in matches for item in match]
     return ''.join(res).strip()
@@ -69,7 +79,7 @@ def find_missing_numbers(indexes) -> list:
 def extract_from_jupyter_hotel(text) -> dict:
     """ Extracts information from the JUPYTER HOTEL PO pdf"""
     # converts the string to a list of strings separated by '\n'
-    print(text)
+
     list_text = text.split('\n')
 
     # create last index variable
@@ -94,7 +104,6 @@ def extract_from_jupyter_hotel(text) -> dict:
         code = filt_item[:6]
         filt_item = filt_item.replace(code, '')
         total = detect_weight(filt_item)
-        # filt_item = filt_item.replace(total, '').lstrip()
         discount = detect_discounts(filt_item)
         filt_item = filt_item.replace(discount, '- ').lstrip()
         filt_item = filt_item.split('-')
@@ -107,18 +116,22 @@ def extract_from_jupyter_hotel(text) -> dict:
                 total = filt_item[0]
                 unit = filt_item[1]
                 quantity = filt_item[2]
+                quantity = float(quantity.replace(',', '.'))
                 price = filt_item[3]
+                price = float(price.replace(',', '.'))
         except Exception as error:
             print(error)
-            list_of_units = ['KG', 'UN', 'GF5']
+            list_of_units = ['KG', 'UN', 'GF5', 'L']
             for i in list_of_units:
                 if i in value:
                     unit = i
                     value = value.split(i)
                     total = value[0]
                     glued = glued_values(value[1])
-                    quantity = value[1].split(glued[1])[0]
-                    price = value[1].replace(quantity, '')
+                    quantity_str = value[1].split(glued[1])[0]
+                    quantity = float(quantity_str.replace(',', '.'))
+                    price = value[1].replace(quantity_str, '')
+                    price = float(price.replace(',', '.'))
 
         # Add string from missing index
         for missing_index in missing_indexes:
@@ -126,13 +139,26 @@ def extract_from_jupyter_hotel(text) -> dict:
                 product = product + ' ' + list_text[missing_index]
 
         data.append({
-            'Código': code,
-            'Designação': product.strip(),
-            'Unidade': unit,
-            'Impostos': tax,
-            'Preço unitário': price,
-            'Quantidade': quantity,
-            'Total': total
+            'referência': code,
+            'produto': product.strip(),
+            'preço': price,
+            'quantidade': quantity,
+            'Total': price*quantity
         })
 
-    return data
+    # find date
+    if data:
+        dates = []
+        for element in list_text:
+            date = find_date(element)
+            dates.append(date)
+        dates = [ele for ele in dates if ele != []]
+        dates = [item for row in dates for item in row]
+        date = dates[0]
+    else:
+        date = None
+
+    return {
+        'cliente': 'Jupyter Hotel',
+        'data': date,
+        'dados': data}

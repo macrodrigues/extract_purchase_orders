@@ -14,6 +14,12 @@ def find_seven_consecutive_numbers(text):
     matches = re.findall(pattern, text)
     return matches
 
+def find_date(text):
+    """ Detect date using a regex function"""
+    pattern = r'\d{2}/\d{2}/\d{4}'
+    matches = re.findall(pattern, text)
+    return matches
+
 
 def find_unit(text):
     """This function finds the unit"""
@@ -47,8 +53,10 @@ def extract_from_onyria(text):
         tax = filt_item_list.pop(-1)
         discount = filt_item_list.pop(-1)
         price = filt_item_list.pop(-1).split('€')[0].strip()
+        price = float(price.replace(',', '.'))
         unit = find_unit(filt_item_list[-1])[0]
         quantity = filt_item_list.pop(-1).replace(unit, '')
+        quantity = float(quantity.replace(',', '.'))
         filt_item_list.pop(0)
         filt_item_list.pop(-1)
         product = ' '.join(filt_item_list)
@@ -59,6 +67,15 @@ def extract_from_onyria(text):
                 'quantidade': quantity,
                 'unidade': unit,
                 'preço': price,
-                'total': total})
+                'total': price*quantity})
 
-    return data
+    # find date
+    if data:
+        date = find_date(list_text[1])[0]
+    else:
+        date = None
+
+    return {
+        'cliente': 'Onyria',
+        'data': date,
+        'dados': data}

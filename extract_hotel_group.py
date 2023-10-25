@@ -1,8 +1,12 @@
 """ Group of functions to perform data processing on the pdfs of the
 NH Hotel Group
 """
+# importing required modules
+# pylint: disable=E1101
 # pylint: disable=E1101
 # pylint: disable=W0718
+# pylint: disable=W0612
+# flake8: noqa
 import re
 
 
@@ -52,7 +56,9 @@ def extract_from_hotel_group(text):
                 reference = filt_item_list.pop(1)
                 unit = filt_item_list.pop(-2)
                 price = filt_item_list.pop(-2)
+                price = float(price.replace(',', '.'))
                 quantity = filt_item_list.pop(-2)
+                quantity = float(quantity.replace(',', '.'))
                 date = filt_item_list.pop(-2)
                 product = ' '.join(filt_item_list[2:-1])
 
@@ -69,7 +75,9 @@ def extract_from_hotel_group(text):
                 reference = duplicate_row_list.pop(1)
                 unit = duplicate_row_list.pop(-2)
                 price = duplicate_row_list.pop(-2)
+                price = float(price.replace(',', '.'))
                 quantity = duplicate_row_list.pop(-2)
+                quantity = float(quantity.replace(',', '.'))
                 for element in duplicate_row_list:
                     date = find_date(element)
                     if date:
@@ -84,16 +92,30 @@ def extract_from_hotel_group(text):
                 product = ' '.join(duplicate_row_list[2:-1])
 
             data.append({
-                'código': code,
+                'código': reference,
                 'produto': product,
-                'referência': reference,
+                'quantidade': quantity,
                 'unidade': unit,
                 'preço': price,
-                'quantidade': quantity,
-                'total': total
+                'total': price*quantity
                 })
 
         except Exception as error:
             print(error)
 
-    return data
+    # find date
+    if data:
+        dates = []
+        for element in list_text:
+            date = find_date(element)
+            dates.append(date)
+        dates = [ele for ele in dates if ele != []]
+        dates = [item for row in dates for item in row]
+        date = dates[0]
+    else:
+        date = None
+
+    return {
+        'cliente': 'NH Hotel',
+        'data': date,
+        'dados': data}

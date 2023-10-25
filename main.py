@@ -10,6 +10,7 @@ items = os.listdir('data')
 
 for item in items:
     text = read_pdf(f"data/{item}")
+    # text = read_pdf(f"files/JUPYTER_HOTEL/01.pdf")
     try:
         data = read_based_on_string(text)
         print(data)
