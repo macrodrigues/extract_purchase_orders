@@ -6,6 +6,7 @@ from extract_hotel_group import extract_from_hotel_group
 from extract_jupiter_hotel import extract_from_jupyter_hotel
 from extract_onyria import extract_from_onyria
 from extract_emerald_hotel import extract_from_emerald_hotel
+from extract_astore import extract_from_astore_shop
 
 
 def read_pdf(file_path) -> str:
@@ -31,36 +32,53 @@ def read_based_on_string(str_raw) -> dict:
     # jupyter lisboa hotel
     if 'JUPITER LISBOA HOTEL' in str_raw:
         res = extract_from_jupyter_hotel(str_raw)
-        if res:
+        if res['dados']:
             return res
         else:
-            print(str_raw)
+            print('Jupyter Hotel')
+            if "Fatura fornecedor" in str_raw:
+                print('Factura!')
+            else:
+                print(str_raw)
             return None
 
     # NH hotels
     if '-HOTELS.COM' in str_raw:
         res = extract_from_hotel_group(str_raw)
-        if res:
+        if res['dados']:
             return res
         else:
+            print('NH Hotel')
             print(str_raw)
             return None
 
     # Onyria
     if 'ESTE DOCUMENTO NÃO SERVE DE FATURA' in str_raw:
         res = extract_from_onyria(str_raw)
-        if res:
+        if res['dados']:
             return res
         else:
+            print('Onyria')
             print(str_raw)
             return None
 
     # THE EMERALD HOUSE LISBON HOTEL
     if 'THE EMERALD HOUSE LISBON HOTEL' in str_raw:
         res = extract_from_emerald_hotel(str_raw)
-        if res:
+        if res['dados']:
             return res
         else:
+            print('Emerald House Lisbon')
+            print(str_raw)
+            return None
+
+    # Astore Shop
+    if 'COMPRAR ENCOMENDA' in str_raw:
+        res = extract_from_astore_shop(str_raw)
+        if res['dados']:
+            return res
+        else:
+            print('Astore Shop')
             print(str_raw)
             return None
 

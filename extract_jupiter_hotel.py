@@ -139,10 +139,11 @@ def extract_from_jupyter_hotel(text) -> dict:
                 product = product + ' ' + list_text[missing_index]
 
         data.append({
-            'referência': code,
+            'code': None,
             'produto': product.strip(),
-            'preço': price,
             'quantidade': quantity,
+            'unidade': unit,
+            'preço': price,
             'Total': price*quantity
         })
 

@@ -76,9 +76,9 @@ def extract_from_emerald_hotel(text):
         data.append({
                 'código': code,
                 'produto': product,
+                'quantidade': quantity,
                 'unidade': unit,
                 'preço': price,
-                'quantidade': quantity,
                 'total': price*quantity})
 
     # find date

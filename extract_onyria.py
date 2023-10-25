@@ -62,7 +62,7 @@ def extract_from_onyria(text):
         product = ' '.join(filt_item_list)
         data.append(
             {
-                'código': code,
+                'código': None,
                 'produto': product,
                 'quantidade': quantity,
                 'unidade': unit,

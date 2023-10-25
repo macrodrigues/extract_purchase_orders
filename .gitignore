@@ -4,3 +4,5 @@ files_from_email
 data
 __pycache__
 intercunhados_data
+keys.env
+lista_codigos.csv
