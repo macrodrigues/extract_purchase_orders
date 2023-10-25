@@ -28,14 +28,14 @@ def read_pdf(file_path) -> str:
 def read_based_on_string(str_raw) -> dict:
     """ Each string has a key string to trigger one of
     the following functions"""
-    # # jupyter lisboa hotel
-    # if 'JUPITER LISBOA HOTEL' in str_raw:
-    #     res = extract_from_jupyter_hotel(str_raw)
-    #     if res:
-    #         return res
-    #     else:
-    #         print(str_raw)
-    #         return None
+    # jupyter lisboa hotel
+    if 'JUPITER LISBOA HOTEL' in str_raw:
+        res = extract_from_jupyter_hotel(str_raw)
+        if res:
+            return res
+        else:
+            print(str_raw)
+            return None
 
     # NH hotels
     if '-HOTELS.COM' in str_raw:
@@ -46,23 +46,23 @@ def read_based_on_string(str_raw) -> dict:
             print(str_raw)
             return None
 
-    # # Onyria
-    # if 'ESTE DOCUMENTO NÃO SERVE DE FATURA' in str_raw:
-    #     res = extract_from_onyria(str_raw)
-    #     if res:
-    #         return res
-    #     else:
-    #         print(str_raw)
-    #         return None
+    # Onyria
+    if 'ESTE DOCUMENTO NÃO SERVE DE FATURA' in str_raw:
+        res = extract_from_onyria(str_raw)
+        if res:
+            return res
+        else:
+            print(str_raw)
+            return None
 
-    # # THE EMERALD HOUSE LISBON HOTEL
-    # if 'THE EMERALD HOUSE LISBON HOTEL' in str_raw:
-    #     res = extract_from_emerald_hotel(str_raw)
-    #     if res:
-    #         return res
-    #     else:
-    #         print(str_raw)
-    #         return None
+    # THE EMERALD HOUSE LISBON HOTEL
+    if 'THE EMERALD HOUSE LISBON HOTEL' in str_raw:
+        res = extract_from_emerald_hotel(str_raw)
+        if res:
+            return res
+        else:
+            print(str_raw)
+            return None
 
     else:
         print('Did not find!')
