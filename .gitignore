@@ -5,4 +5,16 @@ data
 __pycache__
 intercunhados_data
 keys.env
-lista_codigos.csv
+code_list_v01.csv
+credentials.json
+output_files
+temp
+codes
+logs
+outputs
+ficheiros_rejeitados
+ficheiros_extraidos
+resultados
+build
+app.spec
+test.ipynb

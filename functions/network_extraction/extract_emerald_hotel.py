@@ -87,6 +87,6 @@ def extract_from_emerald_hotel(text):
     else:
         date = None
     return {
-        'cliente': 'EMERALD HOUSE LISBON HOTEL',
-        'data': date,
-        'dados': data}
+        'client': 'emerald_hotel',
+        'date': date,
+        'data': data}

@@ -22,7 +22,7 @@ def find_eight_consecutive_numbers(text):
 def find_date(text):
     """ In duplicate rows, it can be that the date is glued to another value,
     we detect it using a regex function"""
-    pattern = r'\d{2}/\d{2}/\d{4}'
+    pattern = r'\d{2}.\d{2}.\d{4}'
     matches = re.findall(pattern, text)
     return matches
 
@@ -51,10 +51,22 @@ def extract_from_hotel_group(text):
         try:
             code = find_eight_consecutive_numbers(filt_item)[0]
             filt_item_list = filt_item.replace(code, '').split(' ')
+            for element in filt_item_list:
+                if 'Página' in element:
+                    filt_item_list = filt_item_list[:-3]
+                    filt_item_list[-1] = filt_item_list[-1]\
+                        .replace('Página', '')
             try:
                 total = float(filt_item_list[-1].replace(',', '.'))
                 reference = filt_item_list.pop(1)
                 unit = filt_item_list.pop(-2)
+                # add conditions to the units
+                if unit == 'Kilogr':
+                    unit = 'Kg'
+                if unit == 'Liter':
+                    unit = 'L'
+                if unit == 'Piece':
+                    unit = 'Un'
                 price = filt_item_list.pop(-2)
                 price = float(price.replace(',', '.'))
                 quantity = filt_item_list.pop(-2)
@@ -74,6 +86,12 @@ def extract_from_hotel_group(text):
                 total = float(duplicate_row_list[-1].replace(',', '.'))
                 reference = duplicate_row_list.pop(1)
                 unit = duplicate_row_list.pop(-2)
+                if unit == 'Kilogr':
+                    unit = 'Kg'
+                if unit == 'Liter':
+                    unit = 'L'
+                if unit == 'Piece':
+                    unit = 'Un'
                 price = duplicate_row_list.pop(-2)
                 price = float(price.replace(',', '.'))
                 quantity = duplicate_row_list.pop(-2)
@@ -111,11 +129,16 @@ def extract_from_hotel_group(text):
             dates.append(date)
         dates = [ele for ele in dates if ele != []]
         dates = [item for row in dates for item in row]
-        date = dates[0]
+        date = dates[0].replace('.', '/')
     else:
         date = None
 
+    # find order number
+    for element in list_text:
+        if 'NUMERO DO PEDIDO' in element:
+            order = element.split('NUMERO DO PEDIDO')[-1].strip()
+
     return {
-        'cliente': 'NH Hotel',
-        'data': date,
-        'dados': data}
+        'date': date,
+        'order': order,
+        'data': data}
