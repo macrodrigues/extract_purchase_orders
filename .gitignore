@@ -17,4 +17,4 @@ resultados
 build
 app.spec
 test.ipynb
-**/__pycache__
+__pycache__/
