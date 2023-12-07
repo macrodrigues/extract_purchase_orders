@@ -18,8 +18,8 @@ from functions.gmail_interactions import send_email
 from functions.google_access import google_authentication, create_worksheet
 from functions.google_access import upload_to_google
 from dotenv import load_dotenv
-import datetime as dt
 load_dotenv('keys.env')
+
 
 def activate_extraction(
     boolean,
