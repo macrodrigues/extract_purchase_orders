@@ -2,7 +2,6 @@ files
 extract_gmail.py
 files_from_email
 data
-__pycache__
 intercunhados_data
 keys.env
 code_list_v01.csv
@@ -18,3 +17,4 @@ resultados
 build
 app.spec
 test.ipynb
+**/__pycache__
