@@ -98,7 +98,7 @@ def get_all_data(
         except Exception as error:
             if 'object is not subscriptable' in str(error):
                 logger.error(f"{str(error)}: {filename}")
-                shutil.move(
+                shutil.copy2(
                     f"{files_path}/{filename}",
                     f"{rejected_path}/{filename}")
             else:
@@ -108,7 +108,7 @@ def get_all_data(
 
 
 def create_networks_lists(
-        list_of_dictionaries, networks_lists, logger) -> dict:
+        list_of_dictionaries, networks_lists, input_dates, logger) -> dict:
     """This function iterates over a list of dictionaries
     and saves the data for each network in another dictionary, where the
     key is the networks's name and the value is a list of dictionaries"""
@@ -128,23 +128,34 @@ def create_networks_lists(
     # Use the sorted function with the custom key
     dates_list = list(set(dates_list))
     dates_list.sort(key=lambda date: datetime.strptime(date, "%d/%m/%Y"))
+    input_dates = [input_date.split('-') for input_date in input_dates]
+    new_input_list = []
+    for element_input_date in input_dates:
+        element_input_date[0], element_input_date[-1] = \
+            element_input_date[-1], element_input_date[0]
+        new_input_list.append(element_input_date)
+    new_input_list = ['/'.join(input_date) for input_date in new_input_list]
+
     logger.info(dates_list)
+    logger.info(new_input_list)
 
     # iterate over the list of dictionaries and create add the data
     # to the networks dictionary
     for dictionary in list_of_dictionaries:
-        # if (dictionary['date'] == dates_list[-1])\
-        #         or (dictionary['date'] == dates_list[-2]):
-        if (dictionary['date'] == dates_list[-1]):
-            logger.info(dictionary)
-            df = pd.DataFrame(dictionary['data'])
-            res = {
-                'date': dictionary['date'],
-                'client': dictionary['client_num'],
-                'order': dictionary['order'],
-                'data': df}
+        for input_date in new_input_list:
+            # if (dictionary['date'] == dates_list[-1])\
+            #         or (dictionary['date'] == dates_list[-2]):
+            # if (dictionary['date'] == dates_list[-2]):
+            if dictionary['date'] == input_date:
+                logger.info(dictionary)
+                df = pd.DataFrame(dictionary['data'])
+                res = {
+                    'date': dictionary['date'],
+                    'client': dictionary['client_num'],
+                    'order': dictionary['order'],
+                    'data': df}
 
-            networks_lists[dictionary['network']].append(res)
+                networks_lists[dictionary['network']].append(res)
 
     return networks_lists
 
@@ -312,7 +323,7 @@ def launch_extraction(
     email_address,
     files_path,
     rejected_path,
-        codes_file, clients_file, logger):
+        codes_file, clients_file, input_dates, logger):
 
     """ Function with the extraction steps """
     # This function activates the extraction of files when set to True
@@ -333,7 +344,7 @@ def launch_extraction(
 
     # concatenate dates and organize data by network lists
     networks_data_list = create_networks_lists(
-        data_dicts, networks_lists, logger)
+        data_dicts, networks_lists, input_dates, logger)
 
     # format and upload to Google Sheets
     filtered_all = []

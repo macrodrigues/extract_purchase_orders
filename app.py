@@ -3,10 +3,12 @@
 import os
 import tkinter as tk
 import tkinter.font as tkFont
+from tkinter import messagebox
 import csv
 from tkinter.scrolledtext import ScrolledText
 from config import NETWORKS_LISTS, NETWORKS_FUNCTIONS
 from main import launch_extraction
+import datetime
 from functions.logging import gen_logger
 
 # set up variables
@@ -43,8 +45,9 @@ class App:
     """ This class build the tkinter GUI"""
     def __init__(self):
         self.win = tk.Tk()
-        self.radVar = tk.IntVar()
-        self.win.title('Intercunhados - Simplicador v0.2')
+        self.checkVar = tk.IntVar()
+        self.selected_dates = []
+        self.win.title('Intercunhados - Simplicador v0.3')
         # self.win.iconbitmap(f"{PATH_UTILS}growth.ico")
         # Create a progress bar
         self.canvas = tk.Canvas(
@@ -57,7 +60,8 @@ class App:
         self.win.maxsize(580, 640)
         self.create_main_frame()
         self.create_description()
-        self.main_page()
+        self.dates_frame()
+        # self.main_page()
 
     def create_main_frame(self):
         """Function to create the main frame"""
@@ -94,6 +98,50 @@ class App:
             justify="left")
         self.label2_intro_frame['font'] = Fonts().font4
         self.label2_intro_frame.pack(pady=20, fill='both', anchor='w')
+
+    def dates_frame(self):
+        options_labels = {}
+        for i in range(7):
+            date_key = str(
+                datetime.datetime.today().date() - datetime.timedelta(days=i))
+            options_labels[date_key] = tk.IntVar()
+        self.label_date = tk.Label(
+            self.main_frame,
+            text="Escolher data(s): ",
+            bg='white',
+            font=Fonts().font3)
+        self.label_date.pack(pady=5)
+
+        def get_selection():
+            items_dates = {}
+            for k, v in options_labels.items():
+                items_dates[k] = v.get()
+            list_of_dates = []
+            for k, v in items_dates.items():
+                if v == 1:
+                    list_of_dates.append(k)
+            self.selected_dates = list_of_dates
+
+        for k, v in options_labels.items():
+            self.options = tk.Checkbutton(
+                self.main_frame,
+                text=k,
+                variable=v,
+                onvalue=1,
+                offvalue=0,
+                command=get_selection,
+                justify='right',
+                bg='white')
+            self.options.pack(pady=5)
+        self.upload_dates_btn = tk.Button(
+            self.main_frame,
+            text='Ok!',
+            command=self.add_dates,
+            bg='#62AC3D',
+            activebackground='#5A8A29',
+            fg='#FFFFFF')
+        self.upload_dates_btn['font'] = Fonts().font3
+        self.upload_dates_btn.pack(pady=5)
 
     def main_page(self):
         """ This function adds the main widgets to the main page"""
@@ -168,10 +216,23 @@ class App:
     def create_codes_frame(self):
         """ Adds the label, the scrolled and a button"""
         self.button1.destroy()
+        self.complete_label.pack_forget()
         self.codes_label.pack(pady=5)
         self.st.pack()
         self.ready_codes_btn.pack(pady=5)
         self.win.update()
+
+    def add_dates(self):
+        if self.selected_dates:
+            self.options.destroy()
+            self.label_date.destroy()
+            self.upload_dates_btn.destroy()
+            self.create_main_frame()
+            self.create_description()
+            self.main_page()
+        else:
+            messagebox.showerror("Erro", "Não foi selecionada nenhuma data! ")
+
 
     def add_codes(self):
         """ This function adds the missing codes to the code_list.csv"""
@@ -196,38 +257,48 @@ class App:
     def extract_main_function(self):
         """ Extract all data, upload to Google Sheets and folder
         with txt files"""
-        files_in_folders = {
-            FILES_FOLDER: os.listdir(FILES_FOLDER),
-            FILES_REJECTED: os.listdir(FILES_REJECTED),
-            OUTPUTS_FOLDER: os.listdir(OUTPUTS_FOLDER),
+        try:
+            self.complete_label.pack_forget()
+            folders = [
+                FILES_FOLDER,
+                FILES_REJECTED,
+                OUTPUTS_FOLDER,
+                os.path.join(PATH, "ficheiros_extraidos")]  # logs
 
-        }
+            for folder in folders:
+                files = os.listdir(folder)
+                for file in files:
+                    try:
+                        os.remove(os.path.join(folder, file))
+                    except Exception as error:
+                        print(error)
 
-        for k, v in files_in_folders.items():
-            for file in v:
-                filepath = os.path.join(k, file)
-                os.remove(filepath)
+            self.loading_label.pack(pady=5)
+            self.win.update()
 
-        self.loading_label.pack(pady=5)
-        self.win.update()
-        launch_extraction(
-            True,
-            PATH,
-            NETWORKS_LISTS,
-            NETWORKS_FUNCTIONS,
-            EMAIL,
-            PASSWORD,
-            LAST_EMAIL,
-            EMAIL_FOLDER,
-            EMAIL_ADDRESS,
-            FILES_FOLDER,
-            FILES_REJECTED,
-            CODES_FILE,
-            CLIENTS_FILE,
-            LOGGER)
+            launch_extraction(
+                True,
+                PATH,
+                NETWORKS_LISTS,
+                NETWORKS_FUNCTIONS,
+                EMAIL,
+                PASSWORD,
+                LAST_EMAIL,
+                EMAIL_FOLDER,
+                EMAIL_ADDRESS,
+                FILES_FOLDER,
+                FILES_REJECTED,
+                CODES_FILE,
+                CLIENTS_FILE,
+                self.selected_dates,
+                LOGGER)
+        except Exception as error:
+            messagebox.showerror("Error", str(error))
+
         self.loading_label.pack_forget()
         self.complete_label.pack(pady=21)
         self.win.update()
+
 
 
 app = App()
