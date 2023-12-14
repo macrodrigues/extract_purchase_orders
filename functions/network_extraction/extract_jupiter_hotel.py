@@ -29,7 +29,7 @@ def detect_zero_followed_by_letter(text):
 
 def detect_zero_followed_by_digit(text):
     """This function finds a digit followed by 0"""
-    pattern = r'0[0-9],'
+    pattern = r'0[0-9]{1,3},'
     matches = re.findall(pattern, text)
     return matches
 
@@ -148,10 +148,9 @@ def extract_from_jupyter_hotel(text) -> dict:
     # filter items in text list
     filtered_items = filter_items(index_iterable_items, list_text)
 
-    print(filtered_items)
-
     # fix broken items
     filtered_items = fix_broken_rows(filtered_items, units)
+
 
 
     # deal with missing values

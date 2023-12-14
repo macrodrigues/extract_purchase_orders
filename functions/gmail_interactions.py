@@ -95,6 +95,17 @@ def get_attachments(msgs, data_folder, logger):
 
                 except Exception as error:
                     logger.error(str(error))
+                    if "Invalid argument: " in str(error):
+                        try:
+                            filename = part.get_filename()
+                            filename = filename.split(' - Gerado')[0] + '.pdf'
+                            file_path = os.path.join(data_folder, filename)
+                            # Save the file
+                            with open(file_path, 'wb') as file:
+                                file.write(part.get_payload(decode=True))
+                        except Exception as error:
+                            logger.error(str(error))
+
 
 
 def send_email(results_folder, to_email, email, password, boolean):
