@@ -16,7 +16,7 @@ from functions.gmail_interactions import get_messsages_gmail
 from functions.gmail_interactions import get_attachments
 from functions.gmail_interactions import send_email
 from functions.google_access import google_authentication, create_worksheet
-from functions.google_access import upload_to_google
+from functions.google_access import upload_to_google, read_from_google
 from dotenv import load_dotenv
 load_dotenv('keys.env')
 
@@ -43,8 +43,8 @@ def activate_extraction(
 
 
 def get_all_data(
-        files, networks_functions, codes,
-        clients, files_path, rejected_path, logger) -> list:
+        files, networks_functions, codes_sheet_id,
+        clients_sheet_id, files_path, rejected_path, logger) -> list:
     """ This function iterates over the files """
     list_of_data_dict = []
     # iterate over the files
@@ -52,6 +52,15 @@ def get_all_data(
     for filename in files:
         if '.html' in filename:
             convert_to_pdf(f"{files_path}/{filename}")
+
+    # google authentication
+    google_client = google_authentication('credentials.json')
+    sheet_product_codes = google_client.open_by_key(codes_sheet_id)
+    sheet_clients_codes = google_client.open_by_key(clients_sheet_id)
+
+    # load a dataframe of clients and products from Google
+    df_clients = read_from_google(sheet_clients_codes)
+    df_codes = read_from_google(sheet_product_codes)
 
     # make a list of all .pdf items extracted
     new_filenames = os.listdir(files_path)
@@ -65,12 +74,9 @@ def get_all_data(
                 data = read_pdf_network(
                     text,
                     networks_functions,
-                    clients,
+                    df_clients,
                     logger,
                     file_path=f"{files_path}/{filename}")
-
-            # load a dataframe of codes
-            df_codes = pd.read_csv(codes, sep=';')
 
             # create a dictionary to map products to codes
             product_to_code = dict(
@@ -323,7 +329,7 @@ def launch_extraction(
     email_address,
     files_path,
     rejected_path,
-        codes_file, clients_file, input_dates, logger):
+        codes_id, clients_id, input_dates, logger):
 
     """ Function with the extraction steps """
     # This function activates the extraction of files when set to True
@@ -340,7 +346,7 @@ def launch_extraction(
     # this function gets all the dictionaries in the variable "data_dicts"
     data_dicts = get_all_data(
         filenames, networks_functions,
-        codes_file, clients_file, files_path, rejected_path, logger)
+        codes_id, clients_id, files_path, rejected_path, logger)
 
     # concatenate dates and organize data by network lists
     networks_data_list = create_networks_lists(

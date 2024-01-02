@@ -43,7 +43,9 @@ def create_worksheet(client, sheet_id, worksheet_index, worksheet_name):
 
 def read_from_google(sheet) -> pd.DataFrame:
     """ This function reads the data from the Google Sheet. """
-    df_previous = pd.DataFrame(data=sheet.get_all_records())
+
+    ws = sheet.worksheet('codes')
+    df_previous = pd.DataFrame(data=ws.get_all_records())
     return df_previous
 
 

@@ -10,6 +10,7 @@ from config import NETWORKS_LISTS, NETWORKS_FUNCTIONS
 from main import launch_extraction
 import datetime
 from functions.logging import gen_logger
+from functions.google_access import google_authentication
 
 # set up variables
 PATH = os.getcwd()
@@ -21,8 +22,8 @@ LAST_EMAIL = -1
 FILES_FOLDER = os.path.join(PATH, "ficheiros_extraidos")
 FILES_REJECTED = os.path.join(PATH, "ficheiros_rejeitados")
 OUTPUTS_FOLDER = os.path.join(PATH, "resultados")
-CODES_FILE = f"{PATH}/codes/code_list.csv"
-CLIENTS_FILE = f"{PATH}/codes/clients.csv"
+CODES_ID = os.getenv('codes_products_id')
+CLIENTS_ID = os.getenv('codes_clients_id')
 LOGGER = gen_logger(PATH)
 
 
@@ -47,9 +48,7 @@ class App:
         self.win = tk.Tk()
         self.checkVar = tk.IntVar()
         self.selected_dates = []
-        self.win.title('Intercunhados - Simplicador v0.3')
-        # self.win.iconbitmap(f"{PATH_UTILS}growth.ico")
-        # Create a progress bar
+        self.win.title('Intercunhados - Simplicador v0.4')
         self.canvas = tk.Canvas(
             self.win,
             width=580,
@@ -61,7 +60,6 @@ class App:
         self.create_main_frame()
         self.create_description()
         self.dates_frame()
-        # self.main_page()
 
     def create_main_frame(self):
         """Function to create the main frame"""
@@ -169,8 +167,8 @@ class App:
             text="Ver os códigos que faltam no Google Drive, adicionar aqui\n"
             "e executar de novo a extração antes de submeter no Sage.\n"
             "Adicione os códigos em falta da seguinte forma:\n\n"
-            "Exemplo:\n\nE97;REBENTOS ERVILHA\nA34;SALSA FRISADA\n\n"
-            "Não deixe espaços entre o ponto e virgula!",
+            "Exemplo:\n\nE97,REBENTOS ERVILHA\nA34,SALSA FRISADA\n\n"
+            "Não deixe espaços entre a virgula!",
             justify="left",
             bg='white',
             font=tkFont.Font(size=7))
@@ -216,6 +214,7 @@ class App:
     def create_codes_frame(self):
         """ Adds the label, the scrolled and a button"""
         self.button1.destroy()
+        self.button_codes.destroy()
         self.complete_label.pack_forget()
         self.codes_label.pack(pady=5)
         self.st.pack()
@@ -233,22 +232,18 @@ class App:
         else:
             messagebox.showerror("Erro", "Não foi selecionada nenhuma data! ")
 
-
     def add_codes(self):
         """ This function adds the missing codes to the code_list.csv"""
         input_text = self.st.get("1.0", tk.END)
         values_list = input_text.split('\n')
         values_list = [value.strip() for value in values_list]
-        values_list = [value.split(';') for value in values_list]
-        with open(CODES_FILE, mode='a', newline='', encoding='utf-8') as file:
-            csv_writer = csv.writer(file, delimiter=';')
-            # the final element is always empty
-            for element in values_list[:-1]:
-                if element == ['']:
-                    pass
-                else:
-                    csv_writer.writerow(
-                        [element[0].strip(), element[1].strip()])
+        values_list = [value.split(',') for value in values_list]
+
+        # add to google sheet
+        google_client = google_authentication('credentials.json')
+        sheet_product_codes = google_client.open_by_key(CODES_ID)
+        ws = sheet_product_codes.worksheet('codes')
+        ws.append_rows(values_list[:-1])
 
         self.create_main_frame()
         self.create_description()
@@ -288,8 +283,8 @@ class App:
                 EMAIL_ADDRESS,
                 FILES_FOLDER,
                 FILES_REJECTED,
-                CODES_FILE,
-                CLIENTS_FILE,
+                CODES_ID,
+                CLIENTS_ID,
                 self.selected_dates,
                 LOGGER)
         except Exception as error:
@@ -298,7 +293,6 @@ class App:
         self.loading_label.pack_forget()
         self.complete_label.pack(pady=21)
         self.win.update()
-
 
 
 app = App()

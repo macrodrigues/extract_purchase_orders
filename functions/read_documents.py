@@ -49,7 +49,7 @@ def read_pdf_network(
     """ Each string has a key string to trigger one of
     the following functions"""
 
-    for index, row in pd.read_csv(clients_dataset).iterrows():
+    for index, row in clients_dataset.iterrows():
         if row.client in str_raw:
             try:
                 if row.network == 'ONYRIA':
