@@ -11,6 +11,8 @@ from main import launch_extraction
 import datetime
 from functions.logging import gen_logger
 from functions.google_access import google_authentication
+from dotenv import load_dotenv
+load_dotenv('keys.env')
 
 # set up variables
 PATH = os.getcwd()
@@ -270,6 +272,8 @@ class App:
 
             self.loading_label.pack(pady=5)
             self.win.update()
+
+            print(self.selected_dates)
 
             launch_extraction(
                 True,

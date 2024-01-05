@@ -55,6 +55,7 @@ def get_attachments(msgs, data_folder, logger):
         if isinstance(msg_raw[0], tuple):
             msg = email.message_from_string(str(msg_raw[0][1], 'utf-8'))
             for part in msg.walk():
+                print(part.get_filename())
                 # Check if the part is an attachment
                 logger.info(part.get_filename())
                 if part.get('Content-Disposition') \

@@ -117,12 +117,12 @@ def extract_from_astore_shop(path):
         else:
             if isfloat:
                 filt_list.insert(0, 'Não Identificado (ver código)')
-            if 'Quilos' in filt_list:
+            if ('Quilos' in filt_list) or ('Garrafas' in filt_list):
                 filt_list = filt_list[:-1]
             code = filt_list.pop(0)
             filt_list = [item for item in filt_list if item != '/']
             quantity = float(filt_list.pop(-1))
-            if filt_list[-1] == 'Quilo':
+            if (filt_list[-1] == 'Quilo') or (filt_list[-1] == 'Litro'):
                 filt_list.pop(-1)
             price = float(filt_list.pop(-1))
             product = ' '.join(filt_list)
